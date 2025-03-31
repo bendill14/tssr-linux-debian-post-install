@@ -109,7 +109,9 @@ if [ -f /etc/ssh/sshd_config ]; then
 else
   log "sshd_config file not found."
 fi
-
+# === 8. INSTALL BTOP ===
+   check_and_install "btop"
+   
 log "Post-installation script completed."
 
 exit 0
