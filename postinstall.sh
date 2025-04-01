@@ -1,15 +1,21 @@
 #!/bin/bash
 
 # === VARIABLES ===
+# Crée une variable TIMESTAMP avec la date et l'heure actuelles au format YYYYMMDD_HHMMSS.
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+# Définit le répertoire où les logs seront stockés.
 LOG_DIR="./logs"
+# Crée le chemin complet du fichier de log en utilisant le répertoire LOG_DIR et le TIMESTAMP.
 LOG_FILE="$LOG_DIR/postinstall_$TIMESTAMP.log"
+# Définit le répertoire où les fichiers de configuration sont stockés.
 CONFIG_DIR="./config"
+# Définit le chemin du fichier contenant la liste des paquets à installer.
 PACKAGE_LIST="./lists/packages.txt"
 USERNAME=$(logname)
 USER_HOME="/home/$USERNAME"
 
 # === FUNCTIONS ===
+# Fonction pour écrire des messages dans le fichier de log avec un horodatage.
 log() {
   echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
@@ -28,7 +34,7 @@ check_and_install() {
     fi
   fi
 }
-
+# Fonction pour poser une question à l'utilisateur et récupérer une réponse oui/non.
 ask_yes_no() {
   read -p "$1 [y/N]: " answer
   case "$answer" in
@@ -42,6 +48,7 @@ mkdir -p "$LOG_DIR"
 touch "$LOG_FILE"
 log "Starting post-installation script. Logged user: $USERNAME"
 
+# Vérifie si le script est exécuté en tant que root.
 if [ "$EUID" -ne 0 ]; then
   log "This script must be run as root."
   exit 1
@@ -55,7 +62,7 @@ apt update && apt upgrade -y &>>"$LOG_FILE"
 if [ -f "$PACKAGE_LIST" ]; then
   log "Reading package list from $PACKAGE_LIST"
   while IFS= read -r pkg || [[ -n "$pkg" ]]; do
-    [[ -z "$pkg" || "$pkg" =~ ^# ]] && continue
+    [[ -z "$pkg" || "$pkg" =~ ^# ]] && continue # Ignore les lignes vides ou commençant par # (commentaires).
     check_and_install "$pkg"
   done < "$PACKAGE_LIST"
 else
@@ -89,6 +96,7 @@ else
 fi
 
 # === 6. ADD SSH PUBLIC KEY ===
+# Demande à l'utilisateur s'il souhaite ajouter une clé SSH publique
 if ask_yes_no "Would you like to add a public SSH key?"; then
   read -p "Paste your public SSH key: " ssh_key
   mkdir -p "$USER_HOME/.ssh"
@@ -109,8 +117,6 @@ if [ -f /etc/ssh/sshd_config ]; then
 else
   log "sshd_config file not found."
 fi
-# === 8. INSTALL BTOP ===
-   check_and_install "btop"
    
 log "Post-installation script completed."
 

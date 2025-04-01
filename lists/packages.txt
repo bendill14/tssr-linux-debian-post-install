@@ -1,4 +1,5 @@
-nmap
 net-tools
 htop
 curl
+btop
+sudo
