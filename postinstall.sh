@@ -56,7 +56,7 @@ fi
 
 # === 1. SYSTEM UPDATE ===
 log "Updating system packages..."
-apt update && apt upgrade -y &>>"$LOG_FILE"
+apt get update && apt get upgrade -y &>>"$LOG_FILE"
 
 # === 2. PACKAGE INSTALLATION ===
 if [ -f "$PACKAGE_LIST" ]; then
